@@ -1,4 +1,75 @@
-from __future__ import annotations
+import json
+import re
+
+# 1. Добавляем админские переводы в словарь
+LOCALES_FILE = "/root/ReSave/locales.json"
+with open(LOCALES_FILE, 'r', encoding='utf-8') as f:
+    locales = json.load(f)
+
+ru_admin = {
+    "admin_btn_stats": "📊 Глобальная статистика", "admin_btn_bc": "📣 Рассылка", 
+    "admin_btn_users": "👥 Список пользователей", "admin_btn_clear": "🧹 Очистить БД", 
+    "admin_btn_back": "⬅️ Назад", "admin_btn_yes": "✅ Да, отправить", 
+    "admin_btn_cancel": "❌ Отменить", "admin_btn_yes_clear": "✅ Да, очистить",
+    "admin_panel_title": "Панель администратора", "admin_panel_footer": "Выберите действие ниже.",
+    "admin_stat_active": "Активных пользователей", "admin_stat_total": "Всего загрузок",
+    "admin_stat_vid": "Видео загружено", "admin_stat_aud": "Аудио загружено",
+    "admin_stat_other": "Прочие файлы", "admin_stat_err": "Ошибок", "admin_stat_size": "Общий размер",
+    "admin_stat_users": "Пользователей", "admin_stat_success": "Успешность",
+    "admin_stat_avg_size": "Средний размер файла", "admin_stat_avg_dl": "Среднее число загрузок на пользователя",
+    "admin_top_users": "Топ-5 пользователей:", "admin_no_users": "Пока нет пользователей.",
+    "admin_dl_count": "{c} загрузок", "admin_db_empty": "База пользователей пуста.",
+    "admin_users_title": "Список пользователей", "admin_and_more": "... и еще {c} пользователей",
+    "admin_bc_title": "Рассылка", "admin_bc_prompt": "Отправьте сообщение, фото, видео, документ или аудио для рассылки.",
+    "admin_bc_err_title": "Тип не поддерживается", "admin_bc_err_desc": "Отправьте текст, фото, видео, документ или аудио.",
+    "admin_bc_no_users": "Рассылка недоступна", "admin_bc_no_users_desc": "Нет пользователей для рассылки.",
+    "admin_bc_confirm": "Подтверждение рассылки", "admin_bc_receivers": "Получателей: {c}",
+    "admin_bc_continue": "Продолжить?", "admin_clear_title": "Очистка статистики",
+    "admin_clear_q1": "Вы уверены, что хотите очистить всю статистику?", "admin_clear_q2": "Это действие необратимо.",
+    "admin_clear_done": "Статистика очищена", "admin_clear_success": "База статистики успешно очищена.",
+    "admin_bc_not_found": "Данные рассылки не найдены.", "admin_bc_started": "Рассылка начата",
+    "admin_bc_sent": "Отправлено: {s}/{t}", "admin_bc_err_count": "Ошибок: {e}",
+    "admin_bc_progress": "Рассылка в процессе", "admin_bc_finished": "Рассылка завершена",
+    "admin_bc_success_count": "Успешно отправлено: {s}/{t}", "admin_bc_cancelled": "Рассылка отменена.",
+    "admin_ul_dl": "Загрузок", "admin_ul_vid": "Видео", "admin_ul_aud": "Аудио", "admin_ul_other": "Прочее", "admin_ul_size": "Размер"
+}
+
+en_admin = {
+    "admin_btn_stats": "📊 Global Statistics", "admin_btn_bc": "📣 Broadcast", 
+    "admin_btn_users": "👥 User List", "admin_btn_clear": "🧹 Clear DB", 
+    "admin_btn_back": "⬅️ Back", "admin_btn_yes": "✅ Yes, send", 
+    "admin_btn_cancel": "❌ Cancel", "admin_btn_yes_clear": "✅ Yes, clear",
+    "admin_panel_title": "Admin Panel", "admin_panel_footer": "Select an action below.",
+    "admin_stat_active": "Active users", "admin_stat_total": "Total downloads",
+    "admin_stat_vid": "Videos downloaded", "admin_stat_aud": "Audios downloaded",
+    "admin_stat_other": "Other files", "admin_stat_err": "Errors", "admin_stat_size": "Total size",
+    "admin_stat_users": "Users", "admin_stat_success": "Success rate",
+    "admin_stat_avg_size": "Average file size", "admin_stat_avg_dl": "Avg downloads per user",
+    "admin_top_users": "Top 5 users:", "admin_no_users": "No users in database yet.",
+    "admin_dl_count": "{c} downloads", "admin_db_empty": "User database is empty.",
+    "admin_users_title": "User List", "admin_and_more": "... and {c} more users",
+    "admin_bc_title": "Broadcast", "admin_bc_prompt": "Send a message, photo, video, document, or audio to broadcast.",
+    "admin_bc_err_title": "Unsupported type", "admin_bc_err_desc": "Send text, photo, video, document, or audio.",
+    "admin_bc_no_users": "Broadcast unavailable", "admin_bc_no_users_desc": "No users to broadcast to.",
+    "admin_bc_confirm": "Confirm Broadcast", "admin_bc_receivers": "Receivers: {c}",
+    "admin_bc_continue": "Continue?", "admin_clear_title": "Clear Statistics",
+    "admin_clear_q1": "Are you sure you want to clear all statistics?", "admin_clear_q2": "This action is irreversible.",
+    "admin_clear_done": "Statistics cleared", "admin_clear_success": "Statistics database successfully cleared.",
+    "admin_bc_not_found": "Broadcast data not found.", "admin_bc_started": "Broadcast started",
+    "admin_bc_sent": "Sent: {s}/{t}", "admin_bc_err_count": "Errors: {e}",
+    "admin_bc_progress": "Broadcast in progress", "admin_bc_finished": "Broadcast finished",
+    "admin_bc_success_count": "Successfully sent: {s}/{t}", "admin_bc_cancelled": "Broadcast cancelled.",
+    "admin_ul_dl": "Downloads", "admin_ul_vid": "Videos", "admin_ul_aud": "Audios", "admin_ul_other": "Other", "admin_ul_size": "Size"
+}
+
+locales['ru'].update(ru_admin)
+locales['en'].update(en_admin)
+
+with open(LOCALES_FILE, 'w', encoding='utf-8') as f:
+    json.dump(locales, f, ensure_ascii=False, indent=4)
+
+# 2. Полностью переписываем admin_handlers.py с поддержкой i18n
+admin_code = '''from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
@@ -263,3 +334,9 @@ def register_admin_handlers(router: Router):
     router.callback_query.register(callback_broadcast_confirm, lambda c: c.data == "broadcast_confirm")
     router.callback_query.register(callback_broadcast_cancel, lambda c: c.data == "broadcast_cancel")
     router.callback_query.register(callback_admin_back, lambda c: c.data == "admin_back")
+'''
+
+with open("/root/ReSave/src/handlers/admin_handlers.py", "w", encoding="utf-8") as f:
+    f.write(admin_code)
+
+print("✅ Админ-панель успешно переведена и обновлена!")
